@@ -101,7 +101,7 @@ enum TicketStatus {
 model Payment {
   id             Int      @id @default(autoincrement())
   ticketId       Int
-  Ticket         Ticket   @relation(fields: [ticketId], references: [id])
+  Ticket         Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   value          Int
   cardIssuer     String
   cardLastDigits String
