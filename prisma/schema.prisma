@@ -86,7 +86,7 @@ model Ticket {
   ticketTypeId Int
   TicketType   TicketType   @relation(fields: [ticketTypeId], references: [id])
   enrollmentId Int
-  Enrollment   Enrollment   @relation(fields: [enrollmentId], references: [id])
+  Enrollment   Enrollment   @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
   status       TicketStatus
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
