@@ -2,7 +2,7 @@ import hotelRepository from '@/repositories/hotel-repository';
 import enrollmentRepository from '@/repositories/enrollment-repository';
 import { notFoundError } from '@/errors';
 import ticketsRepository from '@/repositories/tickets-repository';
-import { cannotListHotelsError } from '@/errors';
+import { cannotListHotelsError } from '@/errors/cannot-list-hotels-error';
 
 async function listHotels(userId: number) {
   const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);

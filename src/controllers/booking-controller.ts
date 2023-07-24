@@ -80,6 +80,6 @@ export const updateBookingById = async (req: AuthenticatedRequest, res: Response
     }
 
     catch (error) {
-        next(error);
+        return res.sendStatus(httpStatus.NOT_FOUND);
     }
 }

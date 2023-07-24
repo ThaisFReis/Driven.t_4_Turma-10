@@ -1,6 +1,9 @@
 import { prisma } from '@/config';
 import { Booking } from '@prisma/client';
 
+type CreateParams = Omit<Booking, 'id' | 'createdAt' | 'updatedAt'>;
+type UpdateParams = Omit<Booking, 'createdAt' | 'updatedAt'>;
+
 // Create a new booking
 async function createBooking({ roomId, userId }: CreateParams) : Promise<Booking> {
     return prisma.booking.create({
@@ -76,9 +79,6 @@ async function findRoomByUserId(userId: number) {
         },
     });
 }
-
-type CreateParams = Omit<Booking, 'id' | 'createdAt' | 'updatedAt'>;
-type UpdateParams = Omit<Booking, 'createdAt' | 'updatedAt'>;
 
 const bookingRepository = {
     createBooking,

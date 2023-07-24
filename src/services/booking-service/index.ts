@@ -5,7 +5,7 @@ import hotelRepository from '@/repositories/hotel-repository';
 import { cannotBookError, badRequestError, notFoundError } from '@/errors';
 
 // Check booking
-async function checkBooking(roomId: number, userId: number) {
+async function checkBooking(userId: number) {
     // Check if the user is enrolled
     const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
 
@@ -51,7 +51,7 @@ async function createBooking(roomId: number, userId: number) {
     }
 
     // Check if the booking is possible
-    await checkBooking(roomId, userId);
+    await checkBooking(userId);
 
     // Check if the room is available
     await checkRoom(roomId);
