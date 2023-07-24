@@ -1,13 +1,14 @@
 import { prisma } from '@/config';
+import { Booking } from '@prisma/client';
 
 // Create a new booking
-async function createBooking(roomId: number, userId: number) {
-  return prisma.booking.create({
-    data: {
-      userId,
-      roomId,
-    },
-  });
+async function createBooking({ roomId, userId }: CreateParams) : Promise<Booking> {
+    return prisma.booking.create({
+        data: {
+            userId,
+            roomId,
+        },
+    });
 }
 
 // Find all bookings
@@ -19,7 +20,10 @@ async function findBookings() {
 async function findBookingByUserId(userId: number) {
     return prisma.booking.findFirst({
         where: {
-        userId,
+            userId,
+        },
+        include: {
+            Room: true,
         },
     });
 }
@@ -28,29 +32,33 @@ async function findBookingByUserId(userId: number) {
 async function findBookingByRoomId(roomId: number) {
     return prisma.booking.findFirst({
         where: {
-        roomId,
+            roomId,
         },
     });
 }
 
 // Update a booking by id
-async function updateBookingById(id: number, roomId: number, userId: number) {
-    return prisma.booking.update({
+async function updateBookingById({ id, roomId, userId }: UpdateParams) {
+    return prisma.booking.upsert({
         where: {
-        id,
+            id,
         },
-        data: {
-        userId,
-        roomId,
+        create: {
+            userId,
+            roomId
+        },
+        update: {
+            roomId
         },
     });
 }
 
+// Room
 // Find room by id
 async function findRoomById(id: number) {
     return prisma.booking.findMany({
         where: {
-        id,
+            id,
         },
         include: {
             Room: true,
@@ -58,13 +66,28 @@ async function findRoomById(id: number) {
     });
 }
 
+async function findRoomByUserId(userId: number) {
+    return prisma.booking.findMany({
+        where: {
+            userId,
+        },
+        include: {
+            Room: true,
+        },
+    });
+}
+
+type CreateParams = Omit<Booking, 'id' | 'createdAt' | 'updatedAt'>;
+type UpdateParams = Omit<Booking, 'createdAt' | 'updatedAt'>;
+
 const bookingRepository = {
     createBooking,
     findBookings,
     findBookingByUserId,
     findBookingByRoomId,
     updateBookingById,
-    findRoomById
+    findRoomById,
+    findRoomByUserId
 };
 
 export default bookingRepository;

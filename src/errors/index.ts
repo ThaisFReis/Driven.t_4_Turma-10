@@ -6,3 +6,5 @@ export * from './not-found-error';
 export * from './unauthorized-error';
 export * from './request-error';
 export * from './cannot-book-error';
+export * from './bad-request-error';
+export * from './cannot-list-hotels-error';

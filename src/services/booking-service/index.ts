@@ -1,9 +1,8 @@
-import { notFoundError } from '@/errors';
 import bookingRepository from '@/repositories/booking-repository';
 import enrollmentRepository from '@/repositories/enrollment-repository';
 import ticketsRepository from '@/repositories/tickets-repository';
 import hotelRepository from '@/repositories/hotel-repository';
-import { cannotBookError } from '@/errors/cannot-book-error';
+import { cannotBookError, badRequestError, notFoundError } from '@/errors';
 
 // Check booking
 async function checkBooking(roomId: number, userId: number) {
@@ -22,6 +21,10 @@ async function checkBooking(roomId: number, userId: number) {
     if (!ticket || ticket.status === 'RESERVED' || ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
         throw cannotBookError();
     }
+}
+
+// Check if the room is available
+async function checkRoom(roomId: number) {
 
     // Check if the room exists
     const room = await hotelRepository.findRoomById(roomId);
@@ -42,18 +45,20 @@ async function checkBooking(roomId: number, userId: number) {
 
 // Create a new booking
 async function createBooking(roomId: number, userId: number) {
+    // Check if the room id is valid, if not throw a bad request error
+    if (!roomId) {
+        throw badRequestError();
+    }
+
     // Check if the booking is possible
     await checkBooking(roomId, userId);
 
+    // Check if the room is available
+    await checkRoom(roomId);
+
     // Create the booking
-    return bookingRepository.createBooking(roomId, userId);
+    return bookingRepository.createBooking({ roomId, userId });
 }
-
-// Find all bookings
-async function findBookings() {
-    return bookingRepository.findBookings();
-}
-
 
 // Find a booking by user id
 async function findBookingByUserId(userId: number) {
@@ -71,8 +76,13 @@ async function findBookingByUserId(userId: number) {
 
 // Update a booking
 async function updateBookingById(roomId: number, userId: number) {
+    // Check if the room id is valid, if not throw a bad request error
+    if (!roomId) {
+        throw badRequestError();
+    }
+
     // Check if the booking is possible
-    await checkBooking(roomId, userId);
+    await checkRoom(roomId);
 
     // Check if the booking exists
     const booking = await bookingRepository.findBookingByUserId(userId);
@@ -83,13 +93,12 @@ async function updateBookingById(roomId: number, userId: number) {
     }
 
     // Update the booking
-    return bookingRepository.updateBookingById(booking.id, roomId, userId);
+    return bookingRepository.updateBookingById({ id: booking.id, roomId, userId });
 
 }
 
 const bookingService = {
     createBooking,
-    findBookings,
     findBookingByUserId,
     updateBookingById
 };
