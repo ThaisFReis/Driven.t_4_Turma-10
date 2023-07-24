@@ -1,10 +1,10 @@
-import { NextFunction, Response } from 'express';
+import { Response } from 'express';
 import httpStatus from 'http-status';
 import { AuthenticatedRequest } from '@/middlewares';
 import bookingService from '@/services/booking-service';
 
 // Create a new booking
-export const createBooking = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const createBooking = async (req: AuthenticatedRequest, res: Response) => {
     const { userId } = req;
     const { roomId } = req.body as Record<string, number>; // Because if we don't do this, we will have a any type
 
@@ -15,12 +15,20 @@ export const createBooking = async (req: AuthenticatedRequest, res: Response, ne
             bookingId: booking.id
         });
     } catch (error) {
-        next(error);
+        if (error.name === 'NotFoundError') {
+            return res.sendStatus(httpStatus.NOT_FOUND);
+        }
+
+        if (error.name === 'CannotBookError') {
+            return res.sendStatus(httpStatus.FORBIDDEN);
+        }
+
+        return res.sendStatus(httpStatus.BAD_REQUEST);
     }
 }
 
 // Get a booking by user id
-export const getBookingById = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const getBookingById = async (req: AuthenticatedRequest, res: Response) => {
     const { userId } = req;
     const bookingId = await bookingService.findBookingByUserId(userId);
 
@@ -45,7 +53,7 @@ export const getBookingById = async (req: AuthenticatedRequest, res: Response, n
 }
 
 // Get a booking by user id
-export const getBookingByUserId = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const getBookingByUserId = async (req: AuthenticatedRequest, res: Response ) => {
     const { userId } = req;
 
     try {
@@ -62,7 +70,7 @@ export const getBookingByUserId = async (req: AuthenticatedRequest, res: Respons
 }
 
 // Update a booking by id
-export const updateBookingById = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const updateBookingById = async (req: AuthenticatedRequest, res: Response ) => {
     const { userId } = req;
     const { roomId } = req.body as Record<string, number>;
     const bookingId = Number(req.params.bookingId);
